@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МестоТранс - Перевозки сотрудников на месторождения</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #1e3a8a 100%);
+        }
+        .route-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .gallery-item:hover .overlay {
+            opacity: 1;
+        }
+        .overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .success-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+        .success-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        .success-modal-content i {
+            font-size: 64px;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        .success-modal-content h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .success-modal-content p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        .success-modal-content button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .success-modal-content button:hover {
+            background-color: #2563eb;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            width: 100%;
+            padding: 20px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #1f2937;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .faq-question:hover {
+            background-color: #f3f4f6;
+        }
+        .faq-question.active {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+        }
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: #3b82f6;
+        }
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+            color: #6b7280;
+            background-color: white;
+        }
+        .faq-answer.show {
+            max-height: 500px;
+            padding: 20px;
+        }
+        .fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .slide-in-left {
+            opacity: 0;
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
+        .slide-in-right {
+            opacity: 0;
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+        .scale-in {
+            opacity: 0;
+            animation: scaleIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        /* Пульсирующая кнопка */
+        .pulse-button {
+            position: relative;
+        }
+        .pulse-button::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 6px;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+            z-index: -1;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+        .route-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .route-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .route-card:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="smooth-scroll bg-gray-50">
+    <nav class="fixed top-0 w-full bg-white shadow-md z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-industry text-amber-500 text-2xl"></i>
+                <h1 class="text-2xl font-bold text-gray-800">МестоТранс</h1>
+            </div>
+            <div class="hidden md:flex gap-6">
+                <a href="#services" class="text-gray-700 hover:text-amber-600 transition">Услуги</a>
+                <a href="#fleet" class="text-gray-700 hover:text-amber-600 transition">Автопарк</a>
+                <a href="#stats" class="text-gray-700 hover:text-amber-600 transition">О нас</a>
+                <a href="#faq" class="text-gray-700 hover:text-amber-600 transition">FAQ</a>
+                <a href="#contact" class="text-gray-700 hover:text-amber-600 transition">Контакты</a>
+            </div>
+            <button class="md:hidden text-gray-700" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <a href="#services" class="block px-4 py-2 text-gray-700 hover:bg-amber-100">Услуги</a>
+            <a href="#fleet" class="block px-4 py-2 text-gray-700 hover:bg-amber-100">Автопарк</a>
+            <a href="#stats" class="block px-4 py-2 text-gray-700 hover:bg-amber-100">О нас</a>
+            <a href="#faq" class="block px-4 py-2 text-gray-700 hover:bg-amber-100">FAQ</a>
+            <a href="#contact" class="block px-4 py-2 text-gray-700 hover:bg-amber-100">Контакты</a>
+        </div>
+    </nav>
+
+    <section class="hero-gradient text-white pt-32 pb-20 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h2 class="text-5xl font-bold mb-4">Надежные перевозки на месторождения</h2>
+            <p class="text-xl mb-8 text-gray-300">5+ лет опыта в безопасной перевозке пассажиров</p>
+            <button onclick="document.getElementById('services').scrollIntoView()" class="bg-amber-500 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-amber-400 transition pulse-button">
+                Узнать больше
+            </button>
+        </div>
+    </section>
+
+    <section id="services" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h3 class="text-4xl font-bold mb-4 text-center text-gray-800 fade-in" data-animate="fade-in">Наши услуги</h3>
+            <p class="text-center text-gray-600 mb-12 fade-in" data-animate="fade-in">Полный спектр решений для безопасной доставки персонала</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="route-card bg-white border border-gray-200 rounded-lg overflow-hidden transition duration-300 cursor-pointer fade-in" data-animate="fade-in">
+                    <div class="bg-gradient-to-r from-amber-400 to-amber-600 h-48 flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold mb-2 text-gray-800">Безопасная доставка</h4>
+                        <p class="text-gray-600 mb-4">Профессиональные водители, регулярное ТО, лучшие условия</p>
+                        <div class="flex items-center text-sm">
+                            <span class="text-amber-600 font-bold"><i class="fas fa-check-circle mr-2"></i>Гарантировано</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="route-card bg-white border border-gray-200 rounded-lg overflow-hidden transition duration-300 cursor-pointer fade-in" data-animate="fade-in">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-700 h-48 flex items-center justify-center">
+                        <i class="fas fa-tachometer-alt text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold mb-2 text-gray-800">Быстрая доставка</h4>
+                        <p class="text-gray-600 mb-4">Оптимальные маршруты, минимальное время в пути, пунктуальность 100%</p>
+                        <div class="flex items-center text-sm">
+                            <span class="text-blue-600 font-bold"><i class="fas fa-check-circle mr-2"></i>Опыт 5+ лет</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="route-card bg-white border border-gray-200 rounded-lg overflow-hidden transition duration-300 cursor-pointer fade-in" data-animate="fade-in">
+                    <div class="bg-gradient-to-r from-green-500 to-green-700 h-48 flex items-center justify-center">
+                        <i class="fas fa-handshake text-white text-5xl"></i>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold mb-2 text-gray-800">Корпоративные решения</h4>
+                        <p class="text-gray-600 mb-4">Работаем с ведущими компаниями, гибкие тарифы</p>
+                        <div class="flex items-center text-sm">
+                            <span class="text-green-600 font-bold"><i class="fas fa-check-circle mr-2"></i>Надежно</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="stats" class="py-20 px-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                <div class="fade-in" data-animate="fade-in">
+                    <div class="text-5xl font-bold mb-2" data-count="15000">15000+</div>
+                    <p class="text-gray-300">Доставленных сотрудников</p>
+                </div>
+                <div class="fade-in" data-animate="fade-in">
+                    <div class="text-5xl font-bold mb-2" data-count="350">350+</div>
+                    <p class="text-gray-300">Успешных рейсов</p>
+                </div>
+                <div class="fade-in" data-animate="fade-in">
+                    <div class="text-5xl font-bold mb-2" data-count="18">18</div>
+                    <p class="text-gray-300">Единиц техники</p>
+                </div>
+                <div class="fade-in" data-animate="fade-in">
+                    <div class="text-5xl font-bold mb-2" data-count="5">5+</div>
+                    <p class="text-gray-300">Лет опыта</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fleet" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h3 class="text-4xl font-bold mb-4 text-center text-gray-800 fade-in" data-animate="fade-in">Наш автопарк</h3>
+            <p class="text-center text-gray-600 mb-12 fade-in" data-animate="fade-in">Современные комфортабельные автобусы последних моделей</p>
+            
+            <div class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 fade-in" data-animate="fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-bus text-amber-600 mr-2"></i>Toyota Hiace
+                        </h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Вместимость: 15 пассажиров</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Кондиционер и отопление</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Wi-Fi, USB зарядки</li>
+                        </ul>
+                        <div class="mt-4 text-sm text-gray-500">Количество: 5 единиц</div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 fade-in" data-animate="fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-bus text-amber-600 mr-2"></i>Huyndai Universe
+                        </h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Вместимость: 50 пассажиров</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Кондиционер и отопление</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Wi-Fi, USB зарядки</li>
+                        </ul>
+                        <div class="mt-4 text-sm text-gray-500">Количество: 5 единиц</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 fade-in w-full md:w-96" data-animate="fade-in">
+                        <h4 class="text-2xl font-bold mb-4 text-gray-800">
+                            <i class="fas fa-van-shuttle text-amber-600 mr-2"></i>Sprinter Van
+                        </h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Вместимость: 18-20 пассажиров</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Компактный, маневренный</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>VIP комплектация</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>GPS мониторинг</li>
+                        </ul>
+                        <div class="mt-4 text-sm text-gray-500">Количество: 3 единицы</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-4xl mx-auto">
+            <h3 class="text-4xl font-bold mb-4 text-center text-gray-800 fade-in" data-animate="fade-in">Часто задаваемые вопросы</h3>
+            <p class="text-center text-gray-600 mb-12 fade-in" data-animate="fade-in">Ответы на основные вопросы о наших услугах</p>
+            
+            <div class="space-y-2">
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Как забронировать перевозку?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Заполните форму на нашем сайте с указанием даты, количества пассажиров и месторождения назначения. Менеджер свяжется с вами в течение 1-2 часов для подтверждения и уточнения деталей.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Какова стоимость перевозки?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Стоимость зависит от расстояния, количества пассажиров и типа транспорта. Примерные цены: Месторождение №1 (180 км) - от 45000₸, №2 (220 км) - от 55000₸, №3 (150 км) - от 38000₸. Скидки на оптовые заказы.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Есть ли скидки для постоянных клиентов?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Да! Мы предоставляем скидки постоянным клиентам и при регулярных перевозках. От 10-15% скидки при ежемесячных заказах. Свяжитесь с менеджером для обсуждения условий корпоративного контракта.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Какие документы нужны для заказа?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Необходимы: паспорт или удостоверение личности всех пассажиров, копия трудового договора или справка с места работы. Все пассажиры должны быть застрахованы. Дополнительные документы могут потребоваться в зависимости от месторождения.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Какой минимальный размер группы?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Минимальная группа от 10 человек. Для меньшего количества можно согласовать с менеджером. В некоторых случаях возможно объединение заказов от разных компаний.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Можно ли отменить или перенести заказ?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Отмена за 7 дней до даты поездки - полный возврат средств. Отмена за 3-6 дней - возврат 50%. Отмена менее чем за 3 дня - возврат не производится. Перенос на другую дату возможен при наличии свободных мест.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Что нужно взять с собой?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Рекомендуется взять: паспорт/удостоверение, удобную одежду и обувь, головной убор, солнцезащитные очки, питьевую воду, необходимые лекарства. На месторождении может быть холодно и ветрено, поэтому одевайтесь теплее.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Какие удобства есть в автобусе?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Все наши автобусы оборудованы: кондиционерами, мягкими сиденьями, Wi-Fi, USB зарядками для телефонов. В больших автобусах есть туалет и умывальник. Напитки и закуски доступны по предварительному заказу.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question w-full text-left" onclick="toggleFaq(this)">
+                        <span>Есть ли ограничения по возрасту?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Нет возрастных ограничений. Однако дети до 12 лет должны быть в сопровождении взрослых. Люди с ограниченными возможностями могут воспользоваться нашими услугами - сообщите об этом при бронировании.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="fade-in" data-animate="fade-in">
+                    <h3 class="text-3xl font-bold mb-6 text-gray-800">Заказать перевозку</h3>
+                    <form id="bookingForm" class="space-y-4">
+                        <input type="text" placeholder="ФИО контактного лица" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                        <input type="email" placeholder="Email компании" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                        <input type="tel" placeholder="Номер телефона" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                        <select required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                            <option value="">Выберите месторождение</option>
+                            <option value="field1">Месторождение №1 (180 км)</option>
+                            <option value="field2">Месторождение №2 (220 км)</option>
+                            <option value="field3">Месторождение №3 (150 км)</option>
+                            <option value="other">Другое направление</option>
+                        </select>
+                        <select required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                            <option value="">Количество сотрудников</option>
+                            <option value="10-20">10-20 человек</option>
+                            <option value="20-50">20-50 человек</option>
+                            <option value="50+">50+ человек</option>
+                        </select>
+                        <input type="date" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-600">
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Отправить заявку
+                        </button>
+                    </form>
+                </div>
+
+                <div class="fade-in" data-animate="fade-in">
+                    <h3 class="text-3xl font-bold mb-6 text-gray-800">Свяжитесь с нами</h3>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-phone text-amber-600 text-2xl mt-1"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">Телефон</h4>
+                                <p class="text-gray-600">+7 (705) 991-01-11</p>
+                                <p class="text-gray-600">+7 (701) 234-56-78</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-envelope text-amber-600 text-2xl mt-1"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">Email</h4>
+                                <p class="text-gray-600">info@mestotrans.kz</p>
+                                <p class="text-gray-600">booking@mestotrans.kz</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-map-marker-alt text-amber-600 text-2xl mt-1"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">Офис</h4>
+                                <p class="text-gray-600">ул. Независимости, 85</p>
+                                <p class="text-gray-600">г. Актау, Казахстан</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-amber-600 text-2xl mt-1"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-1">Режим работы</h4>
+                                <p class="text-gray-600">Пн-Пт: 08:00 - 20:00</p>
+                                <p class="text-gray-600">Сб-Вс: 09:00 - 18:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h5 class="font-bold mb-4">Компания</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#stats" class="hover:text-white transition">О нас</a></li>
+                        <li><a href="#" class="hover:text-white transition">Наш опыт</a></li>
+                        <li><a href="#contact" class="hover:text-white transition">Контакты</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Услуги</h5>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#services" class="hover:text-white transition">Перевозки</a></li>
+                        <li><a href="#fleet" class="hover:text-white transition">Автопарк</a></li>
+                        <li><a href="#" class="hover:text-white transition">Спецпредложения</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 МестоТранс. Все права защищены. Безопасная доставка — наш приоритет.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <div id="successModal" class="success-modal">
+        <div class="success-modal-content">
+            <i class="fas fa-check-circle"></i>
+            <h3>Заявка принята!</h3>
+            <p id="successMessage">Спасибо за вашу заявку. Менеджер свяжется с вами в ближайшее время.</p>
+            <button onclick="closeSuccessModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
